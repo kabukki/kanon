@@ -1,0 +1,71 @@
+Name: WeatherAPI
+Description: WeatherAPI is a revolutionary API that does what no other weather api does: return the weather. This simple but powerful concept will definitely disrupt the market
+Deliverable: Web service
+Dependencies:
+    Use FictionalWeatherAPI to fetch weather data
+        Pros:
+            Generous free tier
+    Use Mapbox to translate city to geographical coordinates using an external api
+        Pros:
+            Generous free-tier, affordable beyond 100k req/month
+            Wide coverage
+            Scalable
+    Use Redis to cache requests
+        Pros:
+            Well known
+            Idiomatic use case
+            Allows for TTL
+        Cons:
+            External system to maintain
+            Network overhead
+    Set up observability with Sentry
+Stack:
+    Use Python with FastAPI
+    Use uv for tooling
+Deployment:
+    Deploy on GCP Cloud Run
+    Accessible on weather.example.com
+    Europe region (as close as Paris as possible)
+Guarantees:
+    Low latency (p95 <200ms cache-hit under nominal load )
+    Availability > Consistency
+Context:
+    ~10 req/s
+    Peak 10k concurrent users
+    Mostly European traffic
+    No SLA
+    Max Budget $10/mo
+    Abide by GDPR
+    Clients are unknown API consumers
+Errors:
+    Extends:
+        @web-service-error-codes-best-practices
+    If external systems are down, try your best to answer with the most up-to-date data. Otherwise fall back to returning a server error
+    If the inputs are wrong, return 4xx
+Security:
+    Rate-limit, 60 req/min/IP
+Shared:
+    @weather-endpoint:
+        Input:
+            Either:
+                Take city as input as string
+                Take coordinates as input as { lat, lng }
+            Temperature unit is optionally `celsius` or `farenheit`, defaults to celsius
+        Output:
+            Weather can be either sun, cloud, rain, snow, thunder
+            Include temperature
+        Errors:
+            If both city and coordinates are given, consider it an error
+Behavior:
+    Return current weather for a given city or coordinates
+        Extends:
+            @weather-endpoint
+    Return 7-day weather forecast for a given location
+        Extends:
+            @weather-endpoint
+        Input:
+            Anchor date (default to server time)
+        Output:
+            A list of days and their weather data
+    No auth
+    No i18n, only plain English

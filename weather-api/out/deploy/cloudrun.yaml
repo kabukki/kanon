@@ -1,0 +1,51 @@
+# Deployment manifest for GCP Cloud Run (europe-west9, Paris).
+# Deploy with:
+#   gcloud run services replace deploy/cloudrun.yaml --region=europe-west9
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: weather-api
+  annotations:
+    run.googleapis.com/ingress: all
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/execution-environment: gen2
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "10"
+        run.googleapis.com/cpu-throttling: "true"
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 10
+      containers:
+        - image: gcr.io/PROJECT_ID/weather-api:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: "1"
+              memory: "256Mi"
+          env:
+            - name: FICTIONAL_WEATHER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fictional-weather-api-key
+                  key: latest
+            - name: MAPBOX_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: mapbox-token
+                  key: latest
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: redis-url
+                  key: latest
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: sentry-dsn
+                  key: latest
+            - name: ENVIRONMENT
+              value: production

@@ -1,0 +1,19 @@
+Name: Factorial CLI
+Deliverable: CLI
+Stack:
+    Python
+Guarantees:
+    compute O(n)
+    space O(1)
+Behavior:
+    Return the factorial of a given number
+        Input:
+            factorial to compute, as positional argument
+        Output:
+            Factorial value
+        Transport:
+            Stdout
+        Errors:
+            0: success
+            1: input out of domain (negative value)
+            2: invalid input (wrong argument count, non-integer...)
